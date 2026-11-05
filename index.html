@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-  <title>Для тебя</title>
+  <title>💜Для тебя любимая💜</title>
   <style>
     * {
       margin: 0;
@@ -233,7 +233,9 @@
       max-height: 400px;
     }
 
-    .big-photo-frame img {
+    /* Применяем стили и к картинке, и к видео */
+    .big-photo-frame img,
+    .big-photo-frame video {
       width: 100%;
       height: 100%;
       object-fit: cover;
@@ -254,11 +256,13 @@
       100% { opacity: 0; transform: scale(1.08) rotate(1deg); filter: blur(6px); }
     }
 
-    .big-photo-frame img.photo-fade-out {
+    .big-photo-frame img.photo-fade-out,
+    .big-photo-frame video.photo-fade-out {
       animation: photoFadeOut 0.15s ease forwards;
     }
 
-    .big-photo-frame img.photo-fade-in {
+    .big-photo-frame img.photo-fade-in,
+    .big-photo-frame video.photo-fade-in {
       animation: photoFadeIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
     }
 
@@ -631,10 +635,11 @@
   <div id="mainContent">
     <div class="phone-frame">
 
-      
-
       <div class="big-photo-frame" id="photoFrame">
+        
         <img id="photoImage" src="" alt="Наше фото">
+        
+        <video id="photoVideo" autoplay loop muted playsinline style="display: none;"></video>
       </div>
       <div class="photo-caption">хороший человек</div>
 
@@ -684,7 +689,7 @@
   <audio id="audioPlayer"></audio>
   <audio id="welcomeSound" src="music/f7ae3585a7db496.mp3" preload="auto"></audio>
 
-  <!-- Подключаем внешний JS -->
+  <!-- внешний JS -->
   <script src="script.js"></script>
 </body>
 </html>
