@@ -1,14 +1,14 @@
 (function() {
 
   const PLAYLIST = [
-    { url: 'music/Limp Bizkit - My Way.mp3', name: 'My Way', artist: 'Limp Bizkit', photo: 'photo/fdfdfd.jpg' },
-    { url: 'music/Amyst U and I.mp3', name: 'U and I', artist: 'Amyst', photo: 'photo/16661421534.jpg' },
-    { url: 'music/Melanie Martinez - GUTTER.mp3', name: 'GUTTER', artist: 'Melanie Martinez', photo: 'photo/16661421534.jpg' },
-    { url: 'music/Temper City - Self Aware (LUM!X Remix).mp3', name: 'Self Aware (LUM!X Remix)', artist: 'Temper City', photo: 'photo/16661421534.jpg' },
-    { url: 'music/basshunter dota.mp3', name: 'DotA', artist: 'Basshunter', photo: 'photo/16661421534.jpg' },
-    { url: 'music/lil peep - benz truck (prod. smokeasac).mp3', name: 'benz truck (prod. smokeasac)', artist: 'lil peep', photo: 'photo/1.jpg' },
-    { url: 'music/Numb (Official Music Video) [4K UPGRADE] – Linkin Park.mp3', name: 'Numb', artist: 'Linkin Park', photo: 'photo/16661421534.jpg' },
-    { url: 'music/Farben.mp3', name: 'Farben (TAK TIK Mix)', artist: 'Orange Sector', photo: 'photo/16661421534.jpg' }
+    { url: 'music/basshunter dota.mp3', name: 'DotA', artist: 'Basshunter', photo: 'photo/69868953.jpg' },
+    { url: 'music/Amyst U and I.mp3', name: 'U and I', artist: 'Amyst', photo: 'photo/323232.jpg' },
+    { url: 'music/Melanie Martinez - GUTTER.mp3', name: 'GUTTER', artist: 'Melanie Martinez', photo: 'photo/890758.jpg' },
+    { url: 'music/Temper City - Self Aware (LUM!X Remix).mp3', name: 'Self Aware (LUM!X Remix)', artist: 'Temper City', photo: 'photo/6666443343345.jpg' },
+    { url: 'music/lil peep - benz truck (prod. smokeasac).mp3', name: 'benz truck (prod. smokeasac)', artist: 'lil peep', photo: 'photo/fdfdfd.jpg' },
+    { url: 'music/MONTAGEM DOMER.mp3', name: 'MONTAGEM DOMER', artist: 'DJ Fallthox, Paizo, DJ LXILL', photo: 'photo/1105.mp4' },
+    { url: 'music/Farben.mp3', name: 'Farben (TAK TIK Mix)', artist: 'Orange Sector', photo: 'photo/543354534.jpg' },
+    { url: 'music/prostodichebanayakaktakto.mp3', name: 'Disney princess', artist: 'Melanie Martinez, Clouded', photo: 'photo/88888.jpg' }
   ];
 
   const PHOTO_URL = 'photo/16661421534.jpg';
@@ -35,6 +35,7 @@
   const trackArtistEl = document.getElementById('trackArtist');
   const trackCounterEl = document.getElementById('trackCounter');
   const photoImage = document.getElementById('photoImage');
+  const photoVideo = document.getElementById('photoVideo');
   const photoFrame = document.getElementById('photoFrame');
   const volumeSlider = document.getElementById('volumeSlider');
   const volumeDown = document.getElementById('volumeDown');
@@ -44,7 +45,6 @@
   const modalOverlay = document.getElementById('modalOverlay');
   const modalClose = document.getElementById('modalClose');
   const modalText = document.getElementById('modalText');
-  const shareBtn = document.getElementById('shareBtn');
   const trackInfoEl = document.querySelector('.track-info');
 
   audioPlayer.volume = parseFloat(volumeSlider.value);
@@ -99,6 +99,7 @@
     return min + ':' + (sec < 10 ? '0' : '') + sec;
   }
 
+  // ИСПРАВЛЕННАЯ ФУНКЦИЯ ДЛЯ ФОТО И ВИДЕО
   function updatePhoto(animate) {
     if (animate === undefined) animate = true;
     var track = PLAYLIST[currentIndex];
@@ -109,58 +110,84 @@
 
     if (!photoSrc) {
       photoImage.style.display = 'none';
+      photoVideo.style.display = 'none';
       return;
     }
 
-    function applyNewPhoto() {
-      photoImage.style.display = 'block';
-      photoImage.src = photoSrc;
-      photoImage.onload = function() {
-        photoImage.classList.remove('photo-fade-out');
-        void photoImage.offsetWidth;
-        photoImage.classList.add('photo-fade-in');
-        photoAnimationLock = false;
-      };
-      photoImage.onerror = function() {
+    var isVideo = photoSrc.endsWith('.mp4') || photoSrc.endsWith('.webm');
+
+    function applyNewMedia() {
+      if (isVideo) {
         photoImage.style.display = 'none';
-        photoImage.classList.remove('photo-fade-out', 'photo-fade-in');
-        var prev = photoFrame.querySelector('.photo-placeholder');
-        if (prev) prev.remove();
-        var placeholder = document.createElement('div');
-        placeholder.className = 'photo-placeholder';
-        placeholder.innerHTML = '<span>🖼️✨</span><p></p>';
-        photoFrame.appendChild(placeholder);
+        photoVideo.style.display = 'block';
+        photoVideo.src = photoSrc;
+        
+        // ИСПРАВЛЕНИЕ БАГА: Запускаем видео ТОЛЬКО если музыка играет
+        if (isPlaying) {
+          photoVideo.play().catch(function() {});
+        } else {
+          photoVideo.pause();
+          photoVideo.currentTime = 0; // Отматываем на начало (красивый первый кадр)
+        }
+
+        photoVideo.classList.remove('photo-fade-out');
+        void photoVideo.offsetWidth;
+        photoVideo.classList.add('photo-fade-in');
         photoAnimationLock = false;
-      };
+      } else {
+        photoVideo.style.display = 'none';
+        photoVideo.pause();
+        photoImage.style.display = 'block';
+        photoImage.src = photoSrc;
+        photoImage.onload = function() {
+          photoImage.classList.remove('photo-fade-out');
+          void photoImage.offsetWidth;
+          photoImage.classList.add('photo-fade-in');
+          photoAnimationLock = false;
+        };
+        photoImage.onerror = function() {
+          photoImage.style.display = 'none';
+          photoImage.classList.remove('photo-fade-out', 'photo-fade-in');
+          var prev = photoFrame.querySelector('.photo-placeholder');
+          if (prev) prev.remove();
+          var placeholder = document.createElement('div');
+          placeholder.className = 'photo-placeholder';
+          placeholder.innerHTML = '<span>🖼️✨</span><p></p>';
+          photoFrame.appendChild(placeholder);
+          photoAnimationLock = false;
+        };
+      }
     }
 
-    var currentSrc = photoImage.getAttribute('src') || '';
+    var currentSrc = isVideo ? photoVideo.getAttribute('src') : photoImage.getAttribute('src');
     if (!animate || currentSrc === photoSrc) {
       photoImage.classList.remove('photo-fade-out', 'photo-fade-in');
-      applyNewPhoto();
+      photoVideo.classList.remove('photo-fade-out', 'photo-fade-in');
+      applyNewMedia();
       return;
     }
 
-    if (photoAnimationLock) { applyNewPhoto(); return; }
+    if (photoAnimationLock) { applyNewMedia(); return; }
     photoAnimationLock = true;
 
     photoFrame.classList.remove('photo-switching');
     void photoFrame.offsetWidth;
     photoFrame.classList.add('photo-switching');
 
-    photoImage.classList.remove('photo-fade-in');
-    photoImage.classList.add('photo-fade-out');
+    var activeMedia = isVideo ? photoVideo : photoImage;
+    activeMedia.classList.remove('photo-fade-in');
+    activeMedia.classList.add('photo-fade-out');
 
     var onFadeOutEnd = function() {
-      photoImage.removeEventListener('animationend', onFadeOutEnd);
-      applyNewPhoto();
+      activeMedia.removeEventListener('animationend', onFadeOutEnd);
+      applyNewMedia();
     };
-    photoImage.addEventListener('animationend', onFadeOutEnd);
+    activeMedia.addEventListener('animationend', onFadeOutEnd);
 
     setTimeout(function() {
       if (photoAnimationLock) {
-        photoImage.removeEventListener('animationend', onFadeOutEnd);
-        applyNewPhoto();
+        activeMedia.removeEventListener('animationend', onFadeOutEnd);
+        applyNewMedia();
       }
     }, 500);
   }
@@ -200,6 +227,8 @@
         isPlaying = false;
         playBtn.textContent = '▶️';
       });
+    } else {
+      photoVideo.pause();
     }
     preloadNextTrack();
   }
@@ -217,17 +246,12 @@
   }
 
   function togglePlay() {
-    if (PLAYLIST.length === 0) { alert(''); return; }
+    if (PLAYLIST.length === 0) { alert('Плейлист пуст'); return; }
     if (isPlaying) {
       audioPlayer.pause();
-      isPlaying = false;
-      playBtn.textContent = '▶️';
     } else {
-      audioPlayer.play().then(function() {
-        isPlaying = true;
-        playBtn.textContent = '⏸️';
-      }).catch(function() {
-        alert('');
+      audioPlayer.play().catch(function() {
+        alert('Ошибка воспроизведения');
       });
     }
   }
@@ -256,13 +280,22 @@
   });
 
   audioPlayer.addEventListener('ended', nextTrack);
+  
+  // Связка кнопки Play и видео
   audioPlayer.addEventListener('play', function() {
     isPlaying = true;
     playBtn.textContent = '⏸️';
+    if (photoVideo.style.display === 'block') {
+      photoVideo.play().catch(function() {});
+    }
   });
+  
   audioPlayer.addEventListener('pause', function() {
     isPlaying = false;
     playBtn.textContent = '▶️';
+    if (photoVideo.style.display === 'block') {
+      photoVideo.pause();
+    }
   });
 
   progressContainer.addEventListener('click', function(e) {
@@ -282,7 +315,7 @@
     'Я люблю твою улыбку. Она моё солнце как и ты. ☀️',
     'Спасибо, что ты есть. Каждый день с тобой подарок.',
     'Ты красивее всех звёзд на этом небе. ✨',
-    'Мне нравится, как ты смеёшься. Это мой любимый звук.',
+    'Мне нравится, как ты смеешься. Это мой любимый звук.',
     'Алиса , я тебя люблю .',
     'Ты моя вселенная. 🌌'
   ];
@@ -305,8 +338,6 @@
       if (e.target === modalOverlay) modalOverlay.classList.remove('active');
     });
   }
-
-
 
   // Долгое нажатие на фото
   var longPressTimer;
