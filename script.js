@@ -50,15 +50,7 @@
   audioPlayer.volume = parseFloat(volumeSlider.value);
   if (welcomeSound) welcomeSound.volume = 0.8;
 
-  // Счётчик дней
-  function updateDaysTogether() {
-    const now = new Date();
-    const diff = Math.max(0, Math.floor((now - START_DATE) / (1000 * 60 * 60 * 24)));
-    if (daysTogetherEl) {
-      daysTogetherEl.innerHTML = 'вместе уже <span class="number">' + diff + '</span> дней 💜';
-    }
-  }
-  updateDaysTogether();
+  
 
   // Приветственный экран
   document.body.style.overflow = 'hidden';
